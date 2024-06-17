@@ -22,38 +22,38 @@ void spin(int howlong) {
 }
 
 int main(int argc, char* argv[]) {
-	if (argc == 2 && strcmp(argv[1], "child") == 0) {
+  if (argc == 2 && strcmp(argv[1], "child") == 0) {
 
     // Child process.
-		int stack_v = 0;
-		pid_t pid = getpid();
-		printf("(PID %d) address of stack_v: %p\n", pid, &stack_v);
-		while (1) {
-			spin(1);
-			stack_v = stack_v + 1;
-			printf("(PID %d) stack_v: %d\n", pid, stack_v);
-		}
+    int stack_v = 0;
+    pid_t pid = getpid();
+    printf("(PID %d) address of stack_v: %p\n", pid, &stack_v);
+    while (1) {
+      spin(1);
+      stack_v = stack_v + 1;
+      printf("(PID %d) stack_v: %d\n", pid, stack_v);
+    }
 
-	} else {
+  } else {
 
     // Disable ASLR and fork program in a child process.
-		int ret;
-		short ps_flags = 0;
-		pid_t pid;
-		posix_spawn_file_actions_t actions;
-		posix_spawnattr_t attrs;
-		posix_spawn_file_actions_init(&actions);
-		posix_spawnattr_init(&attrs);
+    int ret;
+    short ps_flags = 0;
+    pid_t pid;
+    posix_spawn_file_actions_t actions;
+    posix_spawnattr_t attrs;
+    posix_spawn_file_actions_init(&actions);
+    posix_spawnattr_init(&attrs);
 
-		ps_flags |= POSIX_SPAWN_SETEXEC;
-		ps_flags |= _POSIX_SPAWN_DISABLE_ASLR;
-		ret = posix_spawnattr_setflags(&attrs, ps_flags);
+    ps_flags |= POSIX_SPAWN_SETEXEC;
+    ps_flags |= _POSIX_SPAWN_DISABLE_ASLR;
+    ret = posix_spawnattr_setflags(&attrs, ps_flags);
 
-		if (ret == 0) {
+    if (ret == 0) {
       char *args[] = { argv[0], "child", NULL };
-			posix_spawn(&pid, args[0], &actions, &attrs, args, NULL);
-		}
+      posix_spawn(&pid, args[0], &actions, &attrs, args, NULL);
+    }
 
-	}
-	return 0;
+  }
+  return 0;
 }
